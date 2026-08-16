@@ -1,0 +1,284 @@
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local CoreGui = game:GetService("CoreGui")
+local LocalPlayer = Players.LocalPlayer
+
+local oldGui = CoreGui:FindFirstChild("DarkTransparentGUI")
+if oldGui then oldGui:Destroy() end
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "DarkTransparentGUI"
+ScreenGui.Parent = CoreGui
+
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0, 290, 0, 75)
+Frame.Position = UDim2.new(0, 100, 0, 100)
+Frame.BackgroundTransparency = 1
+Frame.BorderSizePixel = 0
+Frame.Active = false
+Frame.Draggable = false
+Frame.Parent = ScreenGui
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 15)
+UICorner.Parent = Frame
+
+local function DownloadBackground()
+    local url = "https://raw.githubusercontent.com/miroslavbunov12-rgb/-jg/main/IMG_9957.jpeg"
+    local fileName = "table_bg.jpg"
+    writefile(fileName, game:HttpGet(url))
+    return getcustomasset(fileName)
+end
+
+local ImageLabel = Instance.new("ImageLabel")
+ImageLabel.Name = "BackgroundImage"
+ImageLabel.Size = UDim2.new(1, 0, 1, 0)
+ImageLabel.Position = UDim2.new(0, 0, 0, 0)
+ImageLabel.BackgroundTransparency = 1
+ImageLabel.Image = DownloadBackground()
+ImageLabel.ScaleType = Enum.ScaleType.Crop
+ImageLabel.ZIndex = 1
+ImageLabel.Parent = Frame
+
+local BgCorner = Instance.new("UICorner")
+BgCorner.CornerRadius = UDim.new(0, 15)
+BgCorner.Parent = ImageLabel
+
+local Overlay = Instance.new("Frame")
+Overlay.Name = "DarkOverlay"
+Overlay.Size = UDim2.new(1, 0, 1, 0)
+Overlay.Position = UDim2.new(0, 0, 0, 0)
+Overlay.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
+Overlay.BackgroundTransparency = 0.3
+Overlay.BorderSizePixel = 0
+Overlay.ZIndex = 2
+Overlay.Parent = Frame
+
+local OverlayCorner = Instance.new("UICorner")
+OverlayCorner.CornerRadius = UDim.new(0, 15)
+OverlayCorner.Parent = Overlay
+
+local Shadow = Instance.new("Frame")
+Shadow.Name = "DarkShadow"
+Shadow.BackgroundColor3 = Color3.fromRGB(5, 5, 10)
+Shadow.BackgroundTransparency = 0.6
+Shadow.BorderSizePixel = 0
+Shadow.ZIndex = -1
+Shadow.Parent = ScreenGui
+
+local ShadowCorner = Instance.new("UICorner")
+ShadowCorner.CornerRadius = UDim.new(0, 17)
+ShadowCorner.Parent = Shadow
+
+local function UpdateShadow()
+    Shadow.Size = UDim2.new(0, Frame.AbsoluteSize.X + 4, 0, Frame.AbsoluteSize.Y + 4)
+    Shadow.Position = Frame.Position - UDim2.new(0, 2, 0, 2)
+end
+UpdateShadow()
+
+local TextLabel1 = Instance.new("TextLabel")
+TextLabel1.Size = UDim2.new(1, -30, 0.4, 0)
+TextLabel1.Position = UDim2.new(0, 0, 0.1, 0)
+TextLabel1.BackgroundTransparency = 1
+TextLabel1.Text = "boost only from 100+ valued"
+TextLabel1.TextColor3 = Color3.fromRGB(235, 225, 210)
+TextLabel1.Font = Enum.Font.Gotham
+TextLabel1.TextSize = 16
+TextLabel1.TextXAlignment = Enum.TextXAlignment.Center
+TextLabel1.ZIndex = 4
+TextLabel1.Active = true
+TextLabel1.Parent = Frame
+
+local Stroke1 = Instance.new("UIStroke")
+Stroke1.Color = Color3.fromRGB(0, 0, 10)
+Stroke1.Thickness = 1
+Stroke1.Transparency = 0.5
+Stroke1.Parent = TextLabel1
+
+local TextLabel2 = Instance.new("TextLabel")
+TextLabel2.Size = UDim2.new(1, 0, 0.6, 0)
+TextLabel2.Position = UDim2.new(0, 0, 0.4, 0)
+TextLabel2.BackgroundTransparency = 1
+TextLabel2.Text = "my username: yx_sip"
+TextLabel2.TextColor3 = Color3.fromRGB(245, 240, 230)
+TextLabel2.Font = Enum.Font.GothamBold
+TextLabel2.TextSize = 24
+TextLabel2.TextXAlignment = Enum.TextXAlignment.Center
+TextLabel2.ZIndex = 4
+TextLabel2.Parent = Frame
+
+local Stroke2 = Instance.new("UIStroke")
+Stroke2.Color = Color3.fromRGB(0, 0, 10)
+Stroke2.Thickness = 1.5
+Stroke2.Transparency = 0
+Stroke2.Parent = TextLabel2
+
+local AvatarImage = Instance.new("ImageLabel")
+AvatarImage.Name = "PlayerAvatar"
+AvatarImage.Size = UDim2.new(0, 80, 0, 80)
+AvatarImage.BackgroundTransparency = 1
+AvatarImage.ZIndex = 10
+AvatarImage.Parent = ScreenGui
+
+local AvatarCorner = Instance.new("UICorner")
+AvatarCorner.CornerRadius = UDim.new(1, 0)
+AvatarCorner.Parent = AvatarImage
+
+local function UpdateAvatarPosition()
+    AvatarImage.Position = UDim2.new(
+        0, 
+        Frame.Position.X.Offset + Frame.AbsoluteSize.X + 12, 
+        0, 
+        Frame.Position.Y.Offset + 2
+    )
+end
+UpdateAvatarPosition()
+
+task.spawn(function()
+    local success, thumbnail = pcall(function()
+        return Players:GetUserThumbnailAsync(
+            LocalPlayer.UserId,
+            Enum.ThumbnailType.AvatarThumbnail,
+            Enum.ThumbnailSize.Size420x420
+        )
+    end)
+    
+    if success and thumbnail then
+        AvatarImage.Image = thumbnail
+    else
+        AvatarImage.Image = "rbxthumb://type=Avatar&id=" .. LocalPlayer.UserId .. "&w=420&h=420&filters=circular"
+    end
+end)
+
+local isLocked = false
+local LockButton = Instance.new("TextButton")
+LockButton.Size = UDim2.new(0, 25, 0, 25)
+LockButton.Position = UDim2.new(1, -5, 0, 2)
+LockButton.AnchorPoint = Vector2.new(1, 0)
+LockButton.BackgroundTransparency = 1
+LockButton.Text = "🔓"
+LockButton.Font = Enum.Font.SourceSansBold
+LockButton.TextSize = 18
+LockButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+LockButton.TextTransparency = 0.6
+LockButton.ZIndex = 20
+LockButton.Parent = Frame
+
+LockButton.MouseButton1Click:Connect(function()
+    isLocked = not isLocked
+    LockButton.Text = isLocked and "🔒" or "🔓"
+end)
+
+local dragData = {
+    mode = nil,        -- "move" или "resize"
+    edge = nil,
+    startInput = nil,
+    startPos = nil,
+    startSize = nil,
+    min = Vector2.new(150, 50)
+}
+
+local edges = {
+    Top = {
+        pos = UDim2.new(0, 0, 0, 0),
+        size = UDim2.new(1, 0, 0, 6),
+        rx = 0, ry = -1,
+        mx = 0, my = 1
+    },
+    Bottom = {
+        pos = UDim2.new(0, 0, 1, -6),
+        size = UDim2.new(1, 0, 0, 6),
+        rx = 0, ry = 1,
+        mx = 0, my = 0
+    },
+    Right = {
+        pos = UDim2.new(1, -6, 0, 0),
+        size = UDim2.new(0, 6, 1, 0),
+        rx = 1, ry = 0,
+        mx = 0, my = 0
+    }
+}
+
+for edgeName, edgeData in pairs(edges) do
+    local edgeButton = Instance.new("TextButton")
+    edgeButton.Size = edgeData.size
+    edgeButton.Position = edgeData.pos
+    edgeButton.BackgroundTransparency = 1
+    edgeButton.Text = ""
+    edgeButton.AutoButtonColor = false
+    edgeButton.Active = true
+    edgeButton.ZIndex = 5
+    edgeButton.Name = edgeName .. "Edge"
+    edgeButton.Parent = Frame
+    
+    edgeButton.InputBegan:Connect(function(input)
+        if isLocked then return end
+        if input.UserInputType ~= Enum.UserInputType.MouseButton1 and 
+           input.UserInputType ~= Enum.UserInputType.Touch then 
+            return 
+        end
+        
+        dragData.mode = "resize"
+        dragData.edge = edgeData
+        dragData.startInput = input.Position
+        dragData.startPos = Frame.Position
+        dragData.startSize = Frame.AbsoluteSize
+    end)
+end
+
+TextLabel1.InputBegan:Connect(function(input)
+    if isLocked then return end
+    if input.UserInputType ~= Enum.UserInputType.MouseButton1 and 
+       input.UserInputType ~= Enum.UserInputType.Touch then 
+        return 
+    end
+    
+    dragData.mode = "move"
+    dragData.edge = nil
+    dragData.startInput = input.Position
+    dragData.startPos = Frame.Position
+    dragData.startSize = Frame.AbsoluteSize
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if not dragData.mode then return end
+    if input.UserInputType ~= Enum.UserInputType.MouseMovement and 
+       input.UserInputType ~= Enum.UserInputType.Touch then 
+        return 
+    end
+    
+    local delta = input.Position - dragData.startInput
+    
+    if dragData.mode == "move" then
+        Frame.Position = UDim2.new(
+            dragData.startPos.X.Scale,
+            dragData.startPos.X.Offset + delta.X,
+            dragData.startPos.Y.Scale,
+            dragData.startPos.Y.Offset + delta.Y
+        )
+        UpdateShadow()
+        UpdateAvatarPosition()
+    elseif dragData.mode == "resize" and dragData.edge then
+        local newWidth = math.max(dragData.min.X, dragData.startSize.X + delta.X * dragData.edge.rx)
+        local newHeight = math.max(dragData.min.Y, dragData.startSize.Y + delta.Y * dragData.edge.ry)
+        
+        Frame.Size = UDim2.new(0, newWidth, 0, newHeight)
+        Frame.Position = UDim2.new(
+            dragData.startPos.X.Scale,
+            dragData.startPos.X.Offset - (newWidth - dragData.startSize.X) * dragData.edge.mx,
+            dragData.startPos.Y.Scale,
+            dragData.startPos.Y.Offset - (newHeight - dragData.startSize.Y) * dragData.edge.my
+        )
+        UpdateShadow()
+        UpdateAvatarPosition()
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType ~= Enum.UserInputType.MouseButton1 and 
+       input.UserInputType ~= Enum.UserInputType.Touch then 
+        return 
+    end
+    dragData.mode = nil
+    dragData.edge = nil
+end)
